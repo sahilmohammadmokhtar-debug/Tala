@@ -1,18 +1,150 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی کسب درآمد من</title>
+    <title>بازی کسب درآمد</title>
+    <!-- اتصال اسکریپت رسمی ادزگرام -->
+    <script src="https://adsgram.ai"></script>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; padding-top: 50px; }
-        button { background: #2ecc71; border: none; padding: 15px 30px; font-size: 20px; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        button:active { transform: scale(0.95); }
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        .score-box { font-size: 22px; margin-bottom: 10px; }
+        .energy-box { font-size: 16px; color: #ccc; margin-bottom: 20px; }
+        
+        /* دکمه اصلی کلیک */
+        .click-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #f1c40f;
+            color: #1a1a1a;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(241, 196, 15, 0.4);
+            transition: transform 0.1s;
+        }
+        .click-btn:active { transform: scale(0.95); }
+
+        /* دکمه‌های بخش‌های جدید */
+        .action-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 80%;
+            max-width: 300px;
+        }
+        .ad-btn { background-color: #3498db; }
+        .boost-btn { background-color: #9b59b6; }
     </style>
 </head>
 <body>
-    <h1>به بازی من خوش آمدید!</h1>
-    <p style="font-size: 24px;">تعداد سکه‌ها: <span id="score" style="color: #f1c40f;">0</span></p>
-    <button onclick="document.getElementById('score').innerText++">کلیک کن و سکه بگیر! 🪙</button>
+
+    <h1>به بازی کسب درآمد خوش آمدید</h1>
+    
+    <div class="score-box">تعداد سکه‌ها: <span id="coins">0</span></div>
+    <div class="energy-box">انرژی: <span id="energy">1000</span>/1000</div>
+
+    <button class="click-btn" onclick="clickGold()">کلیک کن</button>
+
+    <!-- بخش دکمه‌های جدید -->
+    <button class="action-btn ad-btn" onclick="showRewardAd()">📺 دیدن تبلیغ (+۵۰ سکه رایگان)</button>
+    <button class="action-btn boost-btn" onclick="buyBoost()">⚡ ارتقای قدرت کلیک (هزینه: <span id="boost-cost">100</span> سکه)</button>
+
+    <script>
+        // لود کردن اطلاعات ذخیره شده قبلی یا تنظیم مقدار اولیه در صورت نبودن داده
+        let coins = parseInt(localStorage.getItem('coins')) || 42;
+        let energy = parseInt(localStorage.getItem('energy')) || 1000;
+        let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
+        let boostCost = clickPower * 100; // هزینه ارتقا متناسب با قدرت کلیک بالا می‌رود
+
+        // تنظیمات و اتصال به توکن ادزگرام شما
+        const AdController = window.Adsgram.init({ blockId: "cnl-38365" });
+
+        // تابع کمکی برای ذخیره همزمان همه داده‌ها در حافظه گوشی
+        function saveGameData() {
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('energy', energy);
+            localStorage.setItem('clickPower', clickPower);
+        }
+
+        // نمایش اطلاعات لود شده در صفحه برای اولین بار
+        updateUI();
+
+        // تابع کلیک روی دکمه زرد
+        function clickGold() {
+            if (energy >= clickPower) {
+                coins += clickPower;
+                energy -= clickPower;
+                saveGameData();
+                updateUI();
+            } else {
+                alert("انرژی شما تمام شده است! کمی صبر کنید تا پر شود.");
+            }
+        }
+
+        // تابع ارتقای قدرت کلیک
+        function buyBoost() {
+            if (coins >= boostCost) {
+                coins -= boostCost;
+                clickPower += 1;
+                boostCost = clickPower * 100;
+                alert("قدرت کلیک شما بیشتر شد! حالا هر کلیک " + clickPower + " سکه می‌دهد.");
+                saveGameData();
+                updateUI();
+            } else {
+                alert("سکه کافی ندارید!");
+            }
+        }
+
+        // تابع نمایش تبلیغ ادزگرام و دادن پاداش به کاربر
+        function showRewardAd() {
+            AdController.show().then((result) => {
+                coins += 50;
+                alert("ممنون از تماشای تبلیغ! ۵۰ سکه به شما اضافه شد.");
+                saveGameData();
+                updateUI();
+            }).catch((result) => {
+                alert("تبلیغ کامل دیده نشد یا خطایی رخ داد.");
+            });
+        }
+
+        // بروزرسانی نوشته‌های صفحه
+        function updateUI() {
+            document.getElementById('coins').innerText = coins;
+            document.getElementById('energy').innerText = energy;
+            document.getElementById('boost-cost').innerText = boostCost;
+        }
+
+        // سیستم پر شدن خودکار انرژی و ذخیره آن (هر ۳ ثانیه ۱ انرژی اضافه می‌شود)
+        setInterval(() => {
+            if (energy < 1000) {
+                energy += 1;
+                saveGameData();
+                updateUI();
+            }
+        }, 3000);
+    </script>
+
 </body>
 </html>
