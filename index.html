@@ -1,26 +1,18 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی کسب درآمد</title>
-    <!-- اتصال اسکریپت رسمی ادزگرام -->
-    <script src="https://adsgram.ai"></script>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        h1 { font-size: 24px; margin-bottom: 20px; }
+<script>
+// ۱. زمان باز شدن بازی: سکه‌های قبلی را از حافظه گوشی می‌خواند
+let coins = localStorage.getItem("user_coins") ? parseInt(localStorage.getItem("user_coins")) : 0;
+document.getElementById("coin_counter").innerText = coins; // نمایش سکه روی صفحه
+
+// ۲. زمان کلیک کردن: سکه جدید را در حافظه گوشی ذخیره می‌کند
+function clickButton() {
+    coins += 1; // یا هر مقداری که با هر کلیک اضافه می‌شود
+    document.getElementById("coin_counter").innerText = coins;
+    
+    // ذخیره در حافظه مرورگر گوشی
+    localStorage.setItem("user_coins", coins);
+}
+</script>
+ 24px; margin-bottom: 20px; }
         .score-box { font-size: 22px; margin-bottom: 10px; }
         .energy-box { font-size: 16px; color: #ccc; margin-bottom: 20px; }
         
