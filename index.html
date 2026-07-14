@@ -1,60 +1,18 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی کسب درآمد</title>
+    <title>بازی کسب درآمد من</title>
     <style>
-        body {
-            background-color: #1c1c1e;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 50px;
-        }
-        .score-container {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .click-btn {
-            background-color: #f1c40f;
-            color: #000;
-            border: none;
-            padding: 20px 40px;
-            font-size: 22px;
-            font-weight: bold;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 10px #d4ac0d;
-            width: 150px;
-            height: 150px;
-        }
-        .click-btn:active {
-            box-shadow: 0 5px #d4ac0d;
-            transform: translateY(5px);
-        }
+        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; padding-top: 50px; }
+        button { background: #2ecc71; border: none; padding: 15px 30px; font-size: 20px; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
-
-    <h1>به بازی کسب درآمد خوش آمدید</h1>
-    
-    <div class="score-container">
-        تعداد سکه‌ها: <span id="score">0</span>
-    </div>
-
-    <button class="click-btn" id="clickBtn">کلیک کن</button>
-
-    <script>
-        let count = 0;
-        const scoreElement = document.getElementById('score');
-        const buttonElement = document.getElementById('clickBtn');
-
-        buttonElement.addEventListener('click', () => {
-            count++;
-            scoreElement.innerText = count;
-        });
-    </script>
-
+    <h1>به بازی من خوش آمدید!</h1>
+    <p style="font-size: 24px;">تعداد سکه‌ها: <span id="score" style="color: #f1c40f;">0</span></p>
+    <button onclick="document.getElementById('score').innerText++">کلیک کن و سکه بگیر! 🪙</button>
 </body>
 </html>
