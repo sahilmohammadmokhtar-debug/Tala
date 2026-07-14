@@ -1,18 +1,20 @@
-<script>
-// ۱. زمان باز شدن بازی: سکه‌های قبلی را از حافظه گوشی می‌خواند
-let coins = localStorage.getItem("user_coins") ? parseInt(localStorage.getItem("user_coins")) : 0;
-document.getElementById("coin_counter").innerText = coins; // نمایش سکه روی صفحه
-
-// ۲. زمان کلیک کردن: سکه جدید را در حافظه گوشی ذخیره می‌کند
-function clickButton() {
-    coins += 1; // یا هر مقداری که با هر کلیک اضافه می‌شود
-    document.getElementById("coin_counter").innerText = coins;
-    
-    // ذخیره در حافظه مرورگر گوشی
-    localStorage.setItem("user_coins", coins);
-}
-</script>
- 24px; margin-bottom: 20px; }
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی کسب درآمد</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        h1 { font-size: 24px; margin-bottom: 20px; }
         .score-box { font-size: 22px; margin-bottom: 10px; }
         .energy-box { font-size: 16px; color: #ccc; margin-bottom: 20px; }
         
@@ -59,11 +61,15 @@ function clickButton() {
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .leaderboard-list { text-align: right; padding-right: 20px; }
         .leaderboard-list li { margin: 8px 0; }
         .ref-input { width: 90%; padding: 8px; border-radius: 5px; border: none; margin-top: 10px; text-align: center; }
     </style>
+    <!-- اسکریپت ادزگرام برای تبلیغات -->
+    <script src="https://adsgram.org"></script>
 </head>
 <body>
 
@@ -103,18 +109,17 @@ function clickButton() {
 
     <script>
         // متغیرهای اصلی بازی و بازیابی از حافظه گوشی
-        let coins = parseInt(localStorage.getItem('coins')) || 42;
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
         let energy = parseInt(localStorage.getItem('energy')) || 1000;
         let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
         let boostCost = clickPower * 100;
 
         // اتصال به توکن ادزگرام شما
-        const AdController = window.Adsgram.init({ blockId: "cnl-38365" });
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "cnl-38365" }) : null;
 
         // ساخت لینک دعوت اختصاصی فرضی برای کاربر
-        // این لینک شناسه عددی رفرال کاربر را به انتهای ربات متصل می‌کند
         const randomUserId = Math.floor(Math.random() * 900000) + 100000;
-        document.getElementById('ref-link').value = "https://t.me_" + randomUserId;
+        document.getElementById('ref-link').value = "https://t.me" + randomUserId;
 
         function saveGameData() {
             localStorage.setItem('coins', coins);
@@ -122,6 +127,13 @@ function clickButton() {
             localStorage.setItem('clickPower', clickPower);
         }
 
+        function updateUI() {
+            document.getElementById('coins').innerText = coins;
+            document.getElementById('energy').innerText = energy;
+            document.getElementById('boost-cost').innerText = boostCost;
+        }
+
+        // اجرای اولیه نمایش اطلاعات
         updateUI();
 
         // تابع باز و بسته کردن بخش‌های جدید
@@ -130,7 +142,6 @@ function clickButton() {
             if (el.style.display === "block") {
                 el.style.display = "none";
             } else {
-                // بستن بقیه بخش‌ها قبل از باز کردن بخش جدید
                 document.getElementById('leaderboard').style.display = "none";
                 document.getElementById('referral').style.display = "none";
                 el.style.display = "block";
@@ -171,22 +182,21 @@ function clickButton() {
         }
 
         function showRewardAd() {
+            if (!AdController) {
+                alert("سیستم تبلیغات در حال حاضر در دسترس نیست.");
+                return;
+            }
             AdController.show().then((result) => {
                 coins += 50;
                 alert("۵۰ سکه به شما اضافه شد.");
                 saveGameData();
                 updateUI();
             }).catch((result) => {
-                alert("خطا در نمایش تبلیغ.");
+                alert("خطا در نمایش تبلیغ یا تبلیغی یافت نشد.");
             });
         }
 
-        function updateUI() {
-            document.getElementById('coins').innerText = coins;
-            document.getElementById('energy').innerText = energy;
-            document.getElementById('boost-cost').innerText = boostCost;
-        }
-
+        // بازیابی خودکار انرژی (هر ۳ ثانیه ۱ واحد)
         setInterval(() => {
             if (energy < 1000) {
                 energy += 1;
