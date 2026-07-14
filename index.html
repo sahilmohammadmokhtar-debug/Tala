@@ -40,7 +40,7 @@
         }
         .click-btn:active { transform: scale(0.95); }
 
-        /* دکمه‌های بخش‌های جدید */
+        /* دکمه‌های بخش‌های بازی */
         .action-btn {
             background-color: #2ecc71;
             color: white;
@@ -56,6 +56,21 @@
         }
         .ad-btn { background-color: #3498db; }
         .boost-btn { background-color: #9b59b6; }
+        .tab-btn { background-color: #e67e22; }
+
+        /* بخش‌های پنهان/آشکار جدید */
+        .section {
+            display: none;
+            width: 85%;
+            max-width: 320px;
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .leaderboard-list { text-align: right; padding-right: 20px; }
+        .leaderboard-list li { margin: 8px 0; }
+        .ref-input { width: 90%; padding: 8px; border-radius: 5px; border: none; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -67,31 +82,78 @@
 
     <button class="click-btn" onclick="clickGold()">کلیک کن</button>
 
-    <!-- بخش دکمه‌های جدید -->
+    <!-- دکمه‌های اصلی منو -->
     <button class="action-btn ad-btn" onclick="showRewardAd()">📺 دیدن تبلیغ (+۵۰ سکه رایگان)</button>
     <button class="action-btn boost-btn" onclick="buyBoost()">⚡ ارتقای قدرت کلیک (هزینه: <span id="boost-cost">100</span> سکه)</button>
+    
+    <!-- دکمه‌های بخش‌های جدید -->
+    <button class="action-btn tab-btn" onclick="toggleSection('leaderboard')">🏆 جدول رده‌بندی بازیکنان</button>
+    <button class="action-btn tab-btn" onclick="toggleSection('referral')">👥 سیستم زیرمجموعه‌گیری</button>
+
+    <!-- باکس جدول رده‌بندی -->
+    <div id="leaderboard" class="section">
+        <h3>🏆 نفرات برتر این هفته</h3>
+        <ol class="leaderboard-list">
+            <li>کاربر amir_82 - ۵۴,۲۰۰ سکه</li>
+            <li>کاربر reza_crypto - ۴۱,۰۰۰ سکه</li>
+            <li>کاربر s_mokhtar - ۳۵,۵۰۰ سکه</li>
+            <li>شما (رتبه فعلی شما براساس سکه آپدیت می‌شود)</li>
+        </ol>
+    </div>
+
+    <!-- باکس زیرمجموعه‌گیری -->
+    <div id="referral" class="section">
+        <h3>👥 دعوت از دوستان</h3>
+        <p>با دعوت هر دوست، ۱۰۰ سکه هدیه بگیرید!</p>
+        <p>لینک دعوت اختصاصی شما:</p>
+        <input type="text" class="ref-input" id="ref-link" readonly onclick="copyRefLink()">
+    </div>
 
     <script>
-        // لود کردن اطلاعات ذخیره شده قبلی یا تنظیم مقدار اولیه در صورت نبودن داده
+        // متغیرهای اصلی بازی و بازیابی از حافظه گوشی
         let coins = parseInt(localStorage.getItem('coins')) || 42;
         let energy = parseInt(localStorage.getItem('energy')) || 1000;
         let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
-        let boostCost = clickPower * 100; // هزینه ارتقا متناسب با قدرت کلیک بالا می‌رود
+        let boostCost = clickPower * 100;
 
-        // تنظیمات و اتصال به توکن ادزگرام شما
+        // اتصال به توکن ادزگرام شما
         const AdController = window.Adsgram.init({ blockId: "cnl-38365" });
 
-        // تابع کمکی برای ذخیره همزمان همه داده‌ها در حافظه گوشی
+        // ساخت لینک دعوت اختصاصی فرضی برای کاربر
+        // این لینک شناسه عددی رفرال کاربر را به انتهای ربات متصل می‌کند
+        const randomUserId = Math.floor(Math.random() * 900000) + 100000;
+        document.getElementById('ref-link').value = "https://t.me_" + randomUserId;
+
         function saveGameData() {
             localStorage.setItem('coins', coins);
             localStorage.setItem('energy', energy);
             localStorage.setItem('clickPower', clickPower);
         }
 
-        // نمایش اطلاعات لود شده در صفحه برای اولین بار
         updateUI();
 
-        // تابع کلیک روی دکمه زرد
+        // تابع باز و بسته کردن بخش‌های جدید
+        function toggleSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el.style.display === "block") {
+                el.style.display = "none";
+            } else {
+                // بستن بقیه بخش‌ها قبل از باز کردن بخش جدید
+                document.getElementById('leaderboard').style.display = "none";
+                document.getElementById('referral').style.display = "none";
+                el.style.display = "block";
+            }
+        }
+
+        // کپی کردن لینک رفرال با کلیک کاربر
+        function copyRefLink() {
+            const copyText = document.getElementById("ref-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("لینک دعوت اختصاصی شما کپی شد! آن را برای دوستانتان بفرستید.");
+        }
+
         function clickGold() {
             if (energy >= clickPower) {
                 coins += clickPower;
@@ -99,17 +161,16 @@
                 saveGameData();
                 updateUI();
             } else {
-                alert("انرژی شما تمام شده است! کمی صبر کنید تا پر شود.");
+                alert("انرژی شما تمام شده است!");
             }
         }
 
-        // تابع ارتقای قدرت کلیک
         function buyBoost() {
             if (coins >= boostCost) {
                 coins -= boostCost;
                 clickPower += 1;
                 boostCost = clickPower * 100;
-                alert("قدرت کلیک شما بیشتر شد! حالا هر کلیک " + clickPower + " سکه می‌دهد.");
+                alert("قدرت کلیک شما بیشتر شد!");
                 saveGameData();
                 updateUI();
             } else {
@@ -117,26 +178,23 @@
             }
         }
 
-        // تابع نمایش تبلیغ ادزگرام و دادن پاداش به کاربر
         function showRewardAd() {
             AdController.show().then((result) => {
                 coins += 50;
-                alert("ممنون از تماشای تبلیغ! ۵۰ سکه به شما اضافه شد.");
+                alert("۵۰ سکه به شما اضافه شد.");
                 saveGameData();
                 updateUI();
             }).catch((result) => {
-                alert("تبلیغ کامل دیده نشد یا خطایی رخ داد.");
+                alert("خطا در نمایش تبلیغ.");
             });
         }
 
-        // بروزرسانی نوشته‌های صفحه
         function updateUI() {
             document.getElementById('coins').innerText = coins;
             document.getElementById('energy').innerText = energy;
             document.getElementById('boost-cost').innerText = boostCost;
         }
 
-        // سیستم پر شدن خودکار انرژی و ذخیره آن (هر ۳ ثانیه ۱ انرژی اضافه می‌شود)
         setInterval(() => {
             if (energy < 1000) {
                 energy += 1;
